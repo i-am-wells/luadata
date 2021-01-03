@@ -40,26 +40,32 @@ class LuaData {
   ~LuaData();
 
   LuaData GetObject(const std::string& key) const;
+  LuaData GetObject(const char* key) const;
   LuaData GetObject(int key) const;
   LuaData GetObject(double key) const;
   LuaData GetObject(bool key) const;
 
   int GetInt(const std::string& key, int default_value = 0) const;
+  int GetInt(const char* key, int default_value = 0) const;
   int GetInt(int key, int default_value = 0) const;
   int GetInt(double key, int default_value = 0) const;
   int GetInt(bool key, int default_value = 0) const;
 
   double GetNumber(const std::string& key, double default_value = 0) const;
+  double GetNumber(const char* key, double default_value = 0) const;
   double GetNumber(int key, double default_value = 0) const;
   double GetNumber(double key, double default_value = 0) const;
   double GetNumber(bool key, double default_value = 0) const;
 
   bool GetBool(const std::string& key, bool default_value = false) const;
+  bool GetBool(const char* key, bool default_value = false) const;
   bool GetBool(int key, bool default_value = false) const;
   bool GetBool(double key, bool default_value = false) const;
   bool GetBool(bool key, bool default_value = false) const;
 
   std::string GetString(const std::string& key,
+                        const std::string& default_value = "") const;
+  std::string GetString(const char* key,
                         const std::string& default_value = "") const;
   std::string GetString(int key, const std::string& default_value = "") const;
   std::string GetString(double key,

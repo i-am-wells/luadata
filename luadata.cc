@@ -1,4 +1,3 @@
-#include <lua.h>
 #include <lua.hpp>
 
 #include "luadata.h"
@@ -70,11 +69,13 @@ std::string LuaData::GetErrorString(Error err) {
     case Error::kReturnValueNotATable:
       return kReturnValueNotATable;
   }
+  return kUnknownLuaError;
 }
 
 // static
 LuaData::LoadResult LuaData::LoadInternal(const std::string& source,
                                           bool from_file) {
+  // TODO: sandbox?
   lua_State* lua_state = luaL_newstate();
   int load_status;
   if (from_file) {
@@ -123,6 +124,10 @@ LuaData LuaData::GetObject(const std::string& key) const {
   return GetObject();
 }
 
+LuaData LuaData::GetObject(const char* key) const {
+  return GetObject(std::string(key));
+}
+
 LuaData LuaData::GetObject(int key) const {
   if (!PushInt(key))
     return LuaData();
@@ -145,6 +150,10 @@ int LuaData::GetInt(const std::string& key, int default_value) const {
   if (!PushString(key))
     return default_value;
   return GetIntOrDefault(default_value);
+}
+
+int LuaData::GetInt(const char* key, int default_value) const {
+  return GetInt(std::string(key), default_value);
 }
 
 int LuaData::GetInt(int key, int default_value) const {
@@ -171,6 +180,10 @@ double LuaData::GetNumber(const std::string& key, double default_value) const {
   return GetDoubleOrDefault(default_value);
 }
 
+double LuaData::GetNumber(const char* key, double default_value) const {
+  return GetNumber(std::string(key), default_value);
+}
+
 double LuaData::GetNumber(int key, double default_value) const {
   if (!PushInt(key))
     return default_value;
@@ -193,6 +206,10 @@ bool LuaData::GetBool(const std::string& key, bool default_value) const {
   if (!PushString(key))
     return default_value;
   return GetBoolOrDefault(default_value);
+}
+
+bool LuaData::GetBool(const char* key, bool default_value) const {
+  return GetBool(std::string(key), default_value);
 }
 
 bool LuaData::GetBool(int key, bool default_value) const {
@@ -218,6 +235,11 @@ std::string LuaData::GetString(const std::string& key,
   if (!PushString(key))
     return default_value;
   return GetStringOrDefault(default_value);
+}
+
+std::string LuaData::GetString(const char* key,
+                               const std::string& default_value) const {
+  return GetString(std::string(key), default_value);
 }
 
 std::string LuaData::GetString(int key,
