@@ -70,6 +70,7 @@ void TestGetObject() {
 int main(int argc, char** argv) {
   TestLoadString();
   TestGetData();
+  TestGetObject();
   std::cerr << "Ran all tests.\n";
   return 0;
 }
