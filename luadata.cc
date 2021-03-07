@@ -118,6 +118,10 @@ LuaData::~LuaData() {
     lua_close(lua_state_);
 }
 
+int LuaData::Count() const {
+  return luaL_len(lua_state_, own_table_index_);
+}
+
 LuaData LuaData::GetObject(const std::string& key) const {
   if (!PushString(key))
     return LuaData();

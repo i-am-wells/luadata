@@ -39,6 +39,9 @@ class LuaData {
   LuaData();
   ~LuaData();
 
+  int Count() const;
+  // TODO iterators?
+
   LuaData GetObject(const std::string& key) const;
   LuaData GetObject(const char* key) const;
   LuaData GetObject(int key) const;

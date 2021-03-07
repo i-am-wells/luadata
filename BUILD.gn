@@ -1,0 +1,6 @@
+source_set("luadata") {
+  sources = [
+    "luadata.cc",
+    "luadata.h",
+  ]
+}
