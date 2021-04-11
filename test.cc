@@ -8,35 +8,37 @@
 #include <cassert>
 #include <iostream>
 
-#include "luadata.h"
+#include "object.h"
+#include "root_object.h"
 
 namespace {
 
-using luadata::LuaData;
+using luadata::Object;
+using luadata::RootObject;
 
 void TestLoadString() {
-  auto [object, error] = LuaData::LoadString("`");
+  auto [object, error] = RootObject::LoadString("`");
   assert(!object);
-  assert(error == LuaData::Error::kSyntaxError);
+  assert(error == luadata::Error::kSyntaxError);
 
-  auto [object1, error1] = LuaData::LoadString("return 1");
+  auto [object1, error1] = RootObject::LoadString("return 1");
   assert(!object1);
-  assert(error1 == LuaData::Error::kReturnValueNotATable);
+  assert(error1 == luadata::Error::kReturnValueNotATable);
 
-  auto [object2, error2] = LuaData::LoadString("");
+  auto [object2, error2] = RootObject::LoadString("");
   assert(!object2);
-  // assert(error2 == LuaData::Error::kEmpty);
+  // assert(error2 == luadata::Error::kEmpty);
 
-  auto [object3, error3] = LuaData::LoadString("return {}, {}");
+  auto [object3, error3] = RootObject::LoadString("return {}, {}");
   assert(object3.get());
 
-  auto [object4, error4] = LuaData::LoadString("return {}");
+  auto [object4, error4] = RootObject::LoadString("return {}");
   assert(object4.get());
-  assert(error4 == LuaData::Error::kOkay);
+  assert(error4 == luadata::Error::kOkay);
 }
 
 void TestGetData() {
-  auto [object, error] = LuaData::LoadString(
+  auto [object, error] = RootObject::LoadString(
       "return {"
       "somestring = 1,"
       "[42] = 2,"
@@ -53,7 +55,7 @@ void TestGetData() {
 }
 
 void TestGetObject() {
-  auto [object, error] = LuaData::LoadString(
+  auto [object, error] = RootObject::LoadString(
       "return {"
       "a = {x = 'some string'},"
       "b = {y = 100},"
@@ -61,8 +63,9 @@ void TestGetObject() {
 
   assert(object.get());
 
-  LuaData object_a = object->GetObject("a");
-  assert(std::string("some string") == object_a.GetString("x"));
+  auto object_a = object->GetObject("a");
+  assert(object_a);
+  assert(std::string("some string") == object_a->GetString("x"));
 }
 
 }  // namespace

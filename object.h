@@ -1,5 +1,5 @@
-#ifndef LUADATA_H_
-#define LUADATA_H_
+#ifndef LUADATA_OBJECT_H_
+#define LUADATA_OBJECT_H_
 
 #include <memory>
 #include <string>
@@ -8,45 +8,20 @@
 
 namespace luadata {
 
-class LuaData {
+class RootObject;
+
+class Object {
  public:
-  enum class Error {
-    // All is well
-    kOkay,
-
-    // Lower-level Lua loading, parsing and executing errors
-    kUnknownLuaError,
-    kSyntaxError,
-    kFileReadError,
-    kOutOfMemory,
-    kLuaRuntimeError,
-
-    // Errors about badly-formed data
-    kEmpty,
-    kTooManyReturnValues,
-    kReturnValueNotATable,
-  };
-  static std::string GetErrorString(Error err);
-
-  struct LoadResult {
-    std::unique_ptr<LuaData> data;
-    Error error;
-  };
-
-  static LoadResult LoadString(const std::string& lua_text);
-  static LoadResult LoadFile(const std::string& file_path);
-
-  LuaData();
-  ~LuaData();
+  virtual ~Object();
 
   int Count() const;
   // TODO iterators?
 
-  LuaData GetObject(const std::string& key) const;
-  LuaData GetObject(const char* key) const;
-  LuaData GetObject(int key) const;
-  LuaData GetObject(double key) const;
-  LuaData GetObject(bool key) const;
+  std::unique_ptr<Object> GetObject(const std::string& key) const;
+  std::unique_ptr<Object> GetObject(const char* key) const;
+  std::unique_ptr<Object> GetObject(int key) const;
+  std::unique_ptr<Object> GetObject(double key) const;
+  std::unique_ptr<Object> GetObject(bool key) const;
 
   int GetInt(const std::string& key, int default_value = 0) const;
   int GetInt(const char* key, int default_value = 0) const;
@@ -76,9 +51,7 @@ class LuaData {
   std::string GetString(bool key, const std::string& default_value = "") const;
 
  private:
-  static LoadResult LoadInternal(const std::string& source, bool from_file);
-
-  LuaData(lua_State* lua_state, int own_table_index);
+  Object(int own_table_index, RootObject* root, Object* prev);
 
   // These all push a value onto the stack.
   bool PushString(const std::string& key) const;
@@ -86,8 +59,8 @@ class LuaData {
   bool PushDouble(double key) const;
   bool PushBool(bool key) const;
 
-  // This one leaves the table on the stack and creates a new LuaData from it.
-  LuaData GetObject() const;
+  // This one leaves the table on the stack and creates a new Object from it.
+  std::unique_ptr<Object> GetObject() const;
 
   // These all effectively pop a value from the stack.
   int GetIntOrDefault(int default_value) const;
@@ -95,10 +68,16 @@ class LuaData {
   bool GetBoolOrDefault(bool default_value) const;
   std::string GetStringOrDefault(const std::string& default_value) const;
 
-  lua_State* lua_state_;
+  void GrowLuaStackIfNeeded() const;
+  lua_State* lua_state() const;
+
+  friend class RootObject;
   int own_table_index_;
+  RootObject* root_;
+  Object* prev_;
+  Object* next_;
 };
 
 }  // namespace luadata
 
-#endif  // LUADATA_H_
+#endif  // LUADATA_OBJECT_H_
