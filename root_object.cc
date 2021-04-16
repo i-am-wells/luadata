@@ -135,7 +135,7 @@ std::unique_ptr<Object> RootObject::AddObject(int table_idx) {
 
 void RootObject::RemoveObject(Object* object) {
   if (object == last_) {
-    lua_pop(lua_state_, object->own_table_index_);
+    lua_pop(lua_state_, 1);
     last_ = last_->prev_;
     if (last_)
       last_->next_ = nullptr;
