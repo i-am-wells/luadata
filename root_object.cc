@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include "luadata/root_object.h"
 
 namespace luadata {
@@ -79,6 +81,8 @@ RootObject::LoadResult RootObject::LoadInternal(const std::string& source,
   if (!lua_state) {
     // TODO: sandbox?
     lua_state = luaL_newstate();
+    luaL_openlibs(lua_state);
+
     own_lua_state = true;
   }
 
@@ -95,8 +99,17 @@ RootObject::LoadResult RootObject::LoadInternal(const std::string& source,
 
   int pcall_status = lua_pcall(lua_state, /*nargs=*/0, /*nresults=*/1,
                                /*message_handler_stack_index=*/0);
-  if (pcall_status != LUA_OK)
+  if (pcall_status != LUA_OK) {
+    if (lua_isstring(lua_state, 1)) {
+      std::cerr << "Failed to load ";
+      if (from_file)
+        std::cerr << source;
+      else
+        std::cerr << "Lua string";
+      std::cerr << ". Lua error: " << lua_tostring(lua_state, 1) << '\n';
+    }
     return {nullptr, ConvertLuaError(pcall_status)};
+  }
 
   // A well-formed input program returns exactly one Lua table
   int return_count = lua_gettop(lua_state);
